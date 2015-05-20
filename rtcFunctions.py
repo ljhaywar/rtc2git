@@ -89,9 +89,9 @@ class Changes:
     @staticmethod
     def accept(*changeentries, workspace, repo, logpath):
         for changeEntry in changeentries:
-            shouter.shout("Accepting: " + changeEntry.tostring())
+            shouter.shout("Resuming: " + changeEntry.tostring())
         revisions = Changes._collectids(changeentries)
-        latest_accept_command = "lscm accept -v --overwrite-uncommitted --changes " + revisions + " --target " + workspace + " -r " + repo
+        latest_accept_command = "lscm resume changeset " + revisions + " -t " + workspace + " -r " + repo + " --overwrite-uncommitted"
         return shell.execute(latest_accept_command, logpath, "a")
 
     @staticmethod
@@ -253,12 +253,32 @@ class ImportHandler:
                 cleanedline = line.strip()
                 if cleanedline:
                     splittedlines = cleanedline.split(informationseparator)
-                    revisionwithbrackets = splittedlines[0].strip()
-                    revision = revisionwithbrackets[1:-1]
-                    author = splittedlines[1].strip()
-                    email = splittedlines[2].strip()
-                    comment = splittedlines[3].strip()
-                    date = splittedlines[4].strip()
+                    if len(splittedlines) > 0:
+                        revisionwithbrackets = splittedlines[0].strip()
+                        revision = revisionwithbrackets[1:-1]
+                    else:
+                        shouter.shout("********REVISION NOT FOUND - SETTING TO NONE*******")
+                        revision = None
+                    if len(splittedlines) > 1:
+                        author = splittedlines[1].strip()
+                    else:
+                        shouter.shout("********AUTHOR NOT FOUND - SETTING TO NONE*******")
+                        author = None
+                    if len(splittedlines) > 2:
+                        email = splittedlines[2].strip()
+                    else:
+                        shouter.shout("********EMAIL NOT FOUND - SETTING TO NONE*******")
+                        email = None
+                    if len(splittedlines) > 3:
+                        comment = splittedlines[3].strip()
+                    else:
+                        shouter.shout("********COMMENT NOT FOUND - SETTING TO NONE*******")
+                        comment = None
+                    if len(splittedlines) > 4:
+                        date = splittedlines[4].strip()
+                    else:
+                        shouter.shout("********DATE NOT FOUND - SETTING TO NONE*******")
+                        date = None
                     changeentries.append(ChangeEntry(revision, author, email, date, comment))
 
         return changeentries
