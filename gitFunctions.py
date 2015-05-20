@@ -80,6 +80,7 @@ class Commiter:
         if branchexist is 0:
             Commiter.checkout(branchname)
         else:
+            shell.execute("git stash")
             shell.execute("git checkout -b " + branchname)
 
     @staticmethod
@@ -90,4 +91,5 @@ class Commiter:
 
     @staticmethod
     def checkout(branchname):
+        shell.execute("git stash")
         shell.execute("git checkout " + branchname)
