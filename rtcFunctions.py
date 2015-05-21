@@ -93,7 +93,13 @@ class Changes:
         revisions = Changes._collectids(changeentries)
         latest_accept_command = "lscm resume changeset " + revisions + " -t " + workspace + " -r " + repo + " --overwrite-uncommitted"
         return shell.execute(latest_accept_command, logpath, "a")
-
+        
+    @staticmethod
+    def merge(logpath):
+        shouter.shout("*******Attempt to resolve conflict by auto-merging******")
+        merge_command = "lscm resolve conflict --auto-merge"
+        return shell.execute(merge_command, logpath)
+        
     @staticmethod
     def _collectids(changeentries):
         ids = ""
@@ -158,8 +164,12 @@ class ImportHandler:
                 continue
             acceptedsuccesfully = Changes.accept(changeEntry, workspace=self.config.workspace, repo=self.config.repo, logpath=self.acceptlogpath) is 0
             if not acceptedsuccesfully:
-                shouter.shout("Change wasnt succesfully accepted into workspace")
-                skipnextchangeset = self.retryacceptincludingnextchangeset(changeEntry, changeentries)
+                code = Changes.merge(logpath=self.acceptlogpath)
+                shouter.shoutwithdate("The code for merging changes is: %s" % code)
+                mergedsuccesfully = code is 0
+                if not mergedsuccesfully:
+                    shouter.shout("Change wasnt succesfully accepted into workspace")
+                    skipnextchangeset = self.retryacceptincludingnextchangeset(changeEntry, changeentries)
             elif not reloaded:
                 if self.is_reloading_necessary():
                     WorkspaceHandler(self.config).load()
