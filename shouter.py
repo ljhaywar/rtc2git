@@ -11,8 +11,10 @@ def shoutwithdate(messagetoshout):
 
 
 def safeshout(messagetoshout):
-    print(messagetoshout.encode('utf8').decode(sys.stdout.encoding))
-
+    try:
+        print(messagetoshout.encode('utf8').decode(sys.stdout.encoding))
+    except:
+        print("Unable to get message")
 
 def gettimestamp():
     return datetime.now().strftime('%H:%M:%S')
