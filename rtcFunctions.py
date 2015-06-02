@@ -287,8 +287,8 @@ class ImportHandler:
                     if len(splittedlines) > 4:
                         date = splittedlines[4].strip()
                     else:
-                        shouter.shout("********DATE NOT FOUND - SETTING TO NONE*******")
-                        date = None
+                        shouter.shout("********DATE NOT FOUND*******")
+                        date = ""
                     #shouter.shout("Revision: %s" % revision)
                     #shouter.shout("Author: %s" % author)
                     #shouter.shout("Email: %s" % email)
@@ -349,7 +349,8 @@ class ChangeEntry:
         return shell.quote(authorrepresentation)
 
     def tostring(self):
-        return self.comment + " (Date: " + self.date + ", Author: " + self.author + ", Revision: " + self.revision + ")"
+        returnString = "%s (Date: %s, Author: %s, Revision: %s)" % (self.comment, self.date, self.author, self.revision)
+        return returnString
 
 
 class ComponentBaseLineEntry:
