@@ -40,7 +40,6 @@ def migrate():
     for streamuuid in streamuuids:
         componentbaselineentries = rtc.getcomponentbaselineentriesfromstream(streamuuid)
         streamname = config.streamnames[streamuuids.index(streamuuid)]
-        rtcworkspace.setnewflowtargets(streamuuid)
         git.branch(streamname)
 
         history = rtc.readhistory(componentbaselineentries, streamname)
