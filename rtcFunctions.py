@@ -101,6 +101,26 @@ class Changes:
         return shell.execute(merge_command, logpath)
 
     @staticmethod
+    def resolveWithProposed(logpath, sandbox):
+        result = -1
+        shouter.shout("*******Attempt to resolve conflict by resolving with proposed******")
+        show_conflicts_command = "lscm -u y show conflicts -d " + sandbox
+        returned = shell.getoutput(show_conflicts_command)
+        shouter.shout("Returned: %s" % returned)
+	#skip first result as the first line doesn't contain a conflict
+        lines = iter(returned)
+        next(lines)
+        for line in lines:
+            uuid = line.split(':')[1].split(')')[0]
+            resolve_command = "lscm resolve conflict --proposed %s -d %s" % (uuid, sandbox)
+            code = shell.execute(resolve_command, logpath)
+            if (result is -1 and code is 0):
+                result = 0
+            elif (code is 1):
+                result = 1
+        return result
+
+    @staticmethod
     def _collectids(changeentries):
         ids = ""
         for changeentry in changeentries:
@@ -168,8 +188,12 @@ class ImportHandler:
                 shouter.shoutwithdate("The code for merging changes is: %s" % code)
                 mergedsuccesfully = code is 0
                 if not mergedsuccesfully:
-                    shouter.shout("Change wasnt succesfully accepted into workspace")
-                    skipnextchangeset = self.retryacceptincludingnextchangeset(changeEntry, changeentries)
+                    sandbox = self.config.workDirectory + "\\" + self.config.clonedGitRepoName
+                    resolvedCode = Changes.resolveWithProposed(logpath=self.acceptlogpath, sandbox=sandbox)
+                    resolvedsuccessfully = resolvedCode is 0
+                    if not resolvedsuccessfully:
+                        shouter.shout("Change wasnt succesfully accepted into workspace")
+                        skipnextchangeset = self.retryacceptincludingnextchangeset(changeEntry, changeentries)
             elif not reloaded:
                 if self.is_reloading_necessary():
                     WorkspaceHandler(self.config).load()
