@@ -188,7 +188,7 @@ class ImportHandler:
                 shouter.shoutwithdate("The code for merging changes is: %s" % code)
                 mergedsuccesfully = code is 0
                 if not mergedsuccesfully:
-                    sandbox = self.config.workDirectory + "\\" + self.config.clonedGitRepoName
+                    sandbox = os.path.join(self.config.workDirectory, self.config.clonedGitRepoName)
                     resolvedCode = Changes.resolveWithProposed(logpath=self.acceptlogpath, sandbox=sandbox)
                     resolvedsuccessfully = resolvedCode is 0
                     if not resolvedsuccessfully:
