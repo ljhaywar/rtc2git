@@ -177,6 +177,7 @@ class ImportHandler:
         amountofacceptedchanges = 0
         skipnextchangeset = False
         reloaded = False
+        sandbox = os.path.join(self.config.workDirectory, self.config.clonedGitRepoName)
         for changeEntry in changeentries:
             amountofacceptedchanges += 1
             if skipnextchangeset:
@@ -188,7 +189,6 @@ class ImportHandler:
                 shouter.shoutwithdate("The code for merging changes is: %s" % code)
                 mergedsuccesfully = code is 0
                 if not mergedsuccesfully:
-                    sandbox = os.path.join(self.config.workDirectory, self.config.clonedGitRepoName)
                     resolvedCode = Changes.resolveWithProposed(logpath=self.acceptlogpath, sandbox=sandbox)
                     resolvedsuccessfully = resolvedCode is 0
                     if not resolvedsuccessfully:
@@ -199,7 +199,7 @@ class ImportHandler:
                     WorkspaceHandler(self.config).load()
                 reloaded = True
             shouter.shout("Accepted change %s/%s into working directory" % (amountofacceptedchanges, amountofchanges))
-            git.addandcommit(changeEntry)
+            git.addandcommit(changeEntry, sandbox)
 
     @staticmethod
     def is_reloading_necessary():
